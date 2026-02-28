@@ -1,3 +1,4 @@
+/// <reference lib="webworker" />
 /* eslint-disable no-restricted-globals */
 const PYODIDE_JS = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/";
@@ -18,8 +19,6 @@ type RunResponse =
   | { type: "run"; requestId: number; ok: false; runtimeMs: number; error: string };
 
 type WorkerResponse = InitResponse | RunResponse;
-
-declare const self: DedicatedWorkerGlobalScope;
 
 declare function importScripts(...urls: string[]): void;
 

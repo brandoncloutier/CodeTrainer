@@ -26,12 +26,17 @@ export type WorkerLike = {
   postMessage: (message: WorkerRequest) => void;
   terminate: () => void;
   addEventListener: (
-    type: "message" | "error",
-    listener: (event: MessageEvent<WorkerResponse> | ErrorEvent) => void
+    type: "message",
+    listener: (event: MessageEvent<WorkerResponse>) => void
+  ) => void;
+  addEventListener: (type: "error", listener: (event: ErrorEvent) => void) => void;
+  removeEventListener: (
+    type: "message",
+    listener: (event: MessageEvent<WorkerResponse>) => void
   ) => void;
   removeEventListener: (
-    type: "message" | "error",
-    listener: (event: MessageEvent<WorkerResponse> | ErrorEvent) => void
+    type: "error",
+    listener: (event: ErrorEvent) => void
   ) => void;
 };
 
