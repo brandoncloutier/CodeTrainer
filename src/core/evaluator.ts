@@ -22,23 +22,20 @@ export type WorkerResponse =
       error: string;
     };
 
-export type WorkerLike = {
+export interface WorkerLike {
   postMessage: (message: WorkerRequest) => void;
   terminate: () => void;
-  addEventListener: (
+  addEventListener(
     type: "message",
     listener: (event: MessageEvent<WorkerResponse>) => void
-  ) => void;
-  addEventListener: (type: "error", listener: (event: ErrorEvent) => void) => void;
-  removeEventListener: (
+  ): void;
+  addEventListener(type: "error", listener: (event: ErrorEvent) => void): void;
+  removeEventListener(
     type: "message",
     listener: (event: MessageEvent<WorkerResponse>) => void
-  ) => void;
-  removeEventListener: (
-    type: "error",
-    listener: (event: ErrorEvent) => void
-  ) => void;
-};
+  ): void;
+  removeEventListener(type: "error", listener: (event: ErrorEvent) => void): void;
+}
 
 type EvaluatorOptions = {
   workerFactory: () => WorkerLike;
