@@ -1,4 +1,3 @@
-/// <reference lib="webworker" />
 /* eslint-disable no-restricted-globals */
 const PYODIDE_JS = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/";

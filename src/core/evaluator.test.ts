@@ -37,19 +37,19 @@ class MockWorker {
     this.terminated = true;
   }
 
-  addEventListener(type: "message" | "error", listener: (event: any) => void) {
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
     if (type === "message") {
-      this.messageListeners.add(listener);
+      this.messageListeners.add(listener as (event: MessageEvent) => void);
     } else {
-      this.errorListeners.add(listener);
+      this.errorListeners.add(listener as (event: ErrorEvent) => void);
     }
   }
 
-  removeEventListener(type: "message" | "error", listener: (event: any) => void) {
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject) {
     if (type === "message") {
-      this.messageListeners.delete(listener);
+      this.messageListeners.delete(listener as (event: MessageEvent) => void);
     } else {
-      this.errorListeners.delete(listener);
+      this.errorListeners.delete(listener as (event: ErrorEvent) => void);
     }
   }
 

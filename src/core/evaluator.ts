@@ -22,20 +22,18 @@ export type WorkerResponse =
       error: string;
     };
 
-export interface WorkerLike {
+export type WorkerLike = {
   postMessage: (message: WorkerRequest) => void;
   terminate: () => void;
-  addEventListener(
-    type: "message",
-    listener: (event: MessageEvent<WorkerResponse>) => void
-  ): void;
-  addEventListener(type: "error", listener: (event: ErrorEvent) => void): void;
-  removeEventListener(
-    type: "message",
-    listener: (event: MessageEvent<WorkerResponse>) => void
-  ): void;
-  removeEventListener(type: "error", listener: (event: ErrorEvent) => void): void;
-}
+  addEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject
+  ) => void;
+  removeEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject
+  ) => void;
+};
 
 type EvaluatorOptions = {
   workerFactory: () => WorkerLike;
@@ -122,8 +120,8 @@ export const createEvaluator = ({ workerFactory }: EvaluatorOptions) => {
   const ensureWorker = () => {
     if (!worker) {
       worker = workerFactory();
-      worker.addEventListener("message", handleMessage);
-      worker.addEventListener("error", handleError);
+      worker.addEventListener("message", handleMessage as EventListener);
+      worker.addEventListener("error", handleError as EventListener);
     }
   };
 
