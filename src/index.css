@@ -12,6 +12,24 @@ body {
   margin: 0;
 }
 
+input,
+select,
+textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
 .container {
   max-width: 960px;
   margin: 0 auto;
@@ -102,11 +120,119 @@ body {
   line-height: 1.4;
 }
 
+.examples {
+  margin-top: 12px;
+}
+
+.examples-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.example-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.test-output {
+  margin-top: 16px;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+}
+
+.timer {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.timer svg {
+  transform: rotate(-90deg);
+}
+
+.timer:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.timer-bg {
+  fill: none;
+  stroke: #e0e7ff;
+  stroke-width: 4;
+}
+
+.timer-fg {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+.timer-label {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.timer-icon {
+  position: absolute;
+  font-size: 14px;
+  color: #2563eb;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 2px 4px;
+}
+
+.timer.paused .timer-label {
+  opacity: 0.35;
+}
+
+.explanation {
+  margin-top: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.explanation label {
+  font-weight: 600;
+}
+
+.explanation textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 10px 12px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.explanation-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.explanation-error {
+  color: #991b1b;
+  font-weight: 600;
 }
 
 .kbd {

@@ -19,9 +19,11 @@ export type Difficulty = 1 | 2 | 3;
 
 export type Question = {
   id: string;
+  drillId: string;
   category: Category;
   difficulty: Difficulty;
   prompt: string;
+  examples: ExampleCase[];
   starterCode: string;
   tests: string;
   solution: string;
@@ -61,6 +63,7 @@ export type PersistedState = {
   schemaVersion: 1;
   sessions: Session[];
   categoryStats: Record<Category, CategoryStats>;
+  submissions: SubmissionRecord[];
 };
 
 export type RoundConfig = {
@@ -81,6 +84,31 @@ export type RoundMetrics = {
   avgTimeMs: number | null;
   bestStreak: number;
   perCategory: Record<Category, CategorySummary>;
+};
+
+export type ExampleCase = {
+  input: string;
+  output: string;
+};
+
+export type SubmissionRecord = {
+  id: string;
+  createdAt: number;
+  drillId: string;
+  category: Category;
+  difficulty: Difficulty;
+  prompt: string;
+  submittedCode: string;
+  recommendedSolution: string;
+  isCorrect: boolean;
+  explanation: string | null;
+  errorSummary?: string | null;
+  timing: {
+    solveTimeMs: number;
+    evalTimeMs?: number;
+    timedOutSolve: boolean;
+    timedOutExec: boolean;
+  };
 };
 
 export const NEETCODE_PATTERN_CATEGORIES = NEETCODE_150.patterns.map(

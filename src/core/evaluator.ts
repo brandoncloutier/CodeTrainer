@@ -35,6 +35,12 @@ export type WorkerLike = {
   ) => void;
 };
 
+export type RunResult = {
+  stdout: string;
+  error?: string;
+  runtimeMs: number;
+};
+
 type EvaluatorOptions = {
   workerFactory: () => WorkerLike;
 };
@@ -204,3 +210,21 @@ const defaultEvaluator = createEvaluator({
 export const evaluatePython = defaultEvaluator.evaluate;
 export const preloadPython = defaultEvaluator.preload;
 export { TIMEOUT_ERROR };
+
+export const runPython = async (
+  code: string,
+  timeLimitMs: number
+): Promise<RunResult> => {
+  const result = await defaultEvaluator.evaluate(code, "", timeLimitMs);
+  if (result.correct) {
+    return {
+      stdout: result.stdout ?? "",
+      runtimeMs: result.runtimeMs
+    };
+  }
+  return {
+    stdout: "",
+    error: result.error ?? "Execution failed.",
+    runtimeMs: result.runtimeMs
+  };
+};

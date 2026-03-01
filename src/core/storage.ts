@@ -3,11 +3,13 @@ import {
   Category,
   CategoryStats,
   PersistedState,
-  Session
+  Session,
+  SubmissionRecord
 } from "./types";
 
 const STORAGE_KEY = "codetrainer_state";
 const MAX_SESSIONS = 50;
+const MAX_SUBMISSIONS = 200;
 
 const createEmptyCategoryStats = (): CategoryStats => ({
   totalAttempts: 0,
@@ -25,7 +27,8 @@ const createEmptyState = (): PersistedState => ({
       return acc;
     },
     {} as Record<Category, CategoryStats>
-  )
+  ),
+  submissions: []
 });
 
 export const loadState = (): PersistedState => {
@@ -47,7 +50,8 @@ export const loadState = (): PersistedState => {
       categoryStats: {
         ...createEmptyState().categoryStats,
         ...parsed.categoryStats
-      }
+      },
+      submissions: parsed.submissions ?? []
     };
   } catch {
     return createEmptyState();
@@ -108,9 +112,23 @@ export const recordSession = (session: Session): PersistedState => {
   const nextState: PersistedState = {
     schemaVersion: 1,
     sessions: nextSessions,
-    categoryStats: nextCategoryStats
+    categoryStats: nextCategoryStats,
+    submissions: state.submissions
   };
 
+  saveState(nextState);
+  return nextState;
+};
+
+export const addSubmission = (record: SubmissionRecord): PersistedState => {
+  const state = loadState();
+  const nextSubmissions = [...state.submissions, record].slice(
+    -MAX_SUBMISSIONS
+  );
+  const nextState: PersistedState = {
+    ...state,
+    submissions: nextSubmissions
+  };
   saveState(nextState);
   return nextState;
 };

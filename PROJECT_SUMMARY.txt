@@ -1,0 +1,91 @@
+CodeTrainer Project Summary (handoff)
+
+What this is
+- A browser-only training app for short Python coding drills with timed rounds and metrics.
+- Mimics a “math trainer” flow, but for Python coding muscle memory.
+
+Tech stack
+- Vite + React + TypeScript
+- Pyodide in a Web Worker (client-side code evaluation)
+- LocalStorage persistence (no backend)
+
+Core UX Flow
+1) Settings Screen
+   - Choose question count (5/10/20), difficulty (1–3), and categories
+   - Categories grouped: Fundamentals + NeetCode Patterns
+2) Drill Screen
+   - Prompt + CodeMirror editor
+   - Submit code for evaluation
+   - Visible 60s timer per question with circular countdown ring
+   - After each submission (correct or incorrect), show reference solution
+   - User clicks Next/Finish to proceed
+3) Results Screen
+   - Accuracy, avg time, best streak, total round time
+   - Per-category breakdown (only categories attempted)
+   - Improvement vs historical rolling average
+
+Timer behavior
+- Solve time limit: 60 seconds per question
+- On timeout, question auto-fails with error “Time limit exceeded.”
+- Blue circular ring with numeric seconds; ring depletes clockwise (negative dash offset)
+- Timer pauses during evaluation and while solution is shown
+
+Evaluation behavior
+- Python executed in a Web Worker via Pyodide (CDN)
+- Execution time limit per run: 15 seconds
+- If execution times out, answer marked incorrect with “Time limit exceeded.”
+- Python errors are sanitized to short messages (Assertion -> “expected output did not match”)
+
+Persistence
+- LocalStorage key: codetrainer_state
+- Rolling average per category (last 10 correct attempts)
+- Sessions capped to 50
+
+Project Structure
+/Users/dino/Desktop/Dev/CodeTrainer
+  /src
+    /components
+      SettingsScreen.tsx
+      DrillScreen.tsx
+      ResultsScreen.tsx
+    /core
+      types.ts
+      templates.ts
+      generator.ts
+      evaluator.ts
+      metrics.ts
+      storage.ts
+      neetcode150.ts  (generated)
+    /workers
+      pyodideWorker.ts
+
+Category System
+Fundamentals:
+- arith, strings, lists, loops, conditionals, functions
+
+NeetCode patterns:
+- arrays_hashing, two_pointers, sliding_window, stack, binary_search,
+  linked_list, trees, tries, heap_priority_queue, backtracking, graphs,
+  advanced_graphs, dp_1d, dp_2d, greedy, intervals, bit_manipulation,
+  math_geometry
+
+Templates
+- templates.ts includes ~30 drills, each with:
+  prompt, starterCode, tests, solution, timeLimitMs
+- Pattern-inspired drills exist for each NeetCode pattern category
+
+NeetCode 150 Integration
+- Scraper script fetches NeetCode 150 list and builds:
+  /src/core/neetcode150.ts
+- Script:
+  npm run scrape:neetcode150
+- Data used for pattern categories and labels (not full problems)
+
+Key Implementation Notes
+- App.tsx manages drill flow, timer, evaluation, and “show solution then proceed” logic
+- DrillScreen renders CodeMirror + timer + solution
+- Worker typing is loosened for Vercel compatibility
+- pyodideWorker.ts is a classic worker using importScripts
+
+Build
+- npm run build

@@ -11,9 +11,15 @@ const QUESTION_COUNT_OPTIONS = [5, 10, 20];
 
 type SettingsScreenProps = {
   onStart: (config: RoundConfig) => void;
+  onLogout: () => void;
+  isLoggingOut: boolean;
 };
 
-export default function SettingsScreen({ onStart }: SettingsScreenProps) {
+export default function SettingsScreen({
+  onStart,
+  onLogout,
+  isLoggingOut
+}: SettingsScreenProps) {
   const [questionCount, setQuestionCount] = useState(10);
   const [difficulty, setDifficulty] = useState<Difficulty>(1);
   const [categories, setCategories] = useState<Category[]>(
@@ -46,7 +52,16 @@ export default function SettingsScreen({ onStart }: SettingsScreenProps) {
           <h1>CodeTrainer</h1>
           <p>Rapid-fire Python drills to build coding muscle memory.</p>
         </div>
-        <span className="badge">MVP</span>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <span className="badge">MVP</span>
+          <button
+            className="button secondary"
+            onClick={onLogout}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? "Signing out..." : "Logout"}
+          </button>
+        </div>
       </div>
 
       <div className="card grid">
@@ -98,6 +113,7 @@ export default function SettingsScreen({ onStart }: SettingsScreenProps) {
                     />{" "}
                     {CATEGORY_LABELS[category]}
                   </label>
+                  
                 ))}
               </div>
             </div>

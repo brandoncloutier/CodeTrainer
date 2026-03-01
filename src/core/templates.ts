@@ -1,4 +1,4 @@
-import { Category, Difficulty, Question, Template } from "./types";
+import { Category, Difficulty, ExampleCase, Question, Template } from "./types";
 
 const DEFAULT_TIME_LIMIT_MS = 15000;
 
@@ -20,6 +20,17 @@ const buildQuestion = (params: Omit<Question, "id">): Question => ({
   ...params,
   id: createId()
 });
+
+const buildQuestionFromTemplate = (
+  templateId: string,
+  params: Omit<Question, "id" | "solution" | "drillId" | "examples">
+): Question =>
+  buildQuestion({
+    ...params,
+    drillId: templateId,
+    solution: getSolution(templateId),
+    examples: getExamples(templateId)
+  });
 
 export const createId = (): string => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -92,6 +103,146 @@ const getSolution = (id: string): string => {
   return solution;
 };
 
+const TEMPLATE_EXAMPLES: Record<string, ExampleCase[]> = {
+  "arith-add": [
+    { input: "add(2, 3)", output: "5" },
+    { input: "add(10, -4)", output: "6" }
+  ],
+  "arith-mul": [
+    { input: "mul(3, 4)", output: "12" },
+    { input: "mul(-2, 5)", output: "-10" }
+  ],
+  "strings-reverse": [
+    { input: 'reverse("cat")', output: '"tac"' },
+    { input: 'reverse("ab")', output: '"ba"' }
+  ],
+  "strings-count-vowels": [
+    { input: 'count_vowels("hello")', output: "2" },
+    { input: 'count_vowels("sky")', output: "0" }
+  ],
+  "lists-sum": [
+    { input: "sum_list([1, 2, 3])", output: "6" },
+    { input: "sum_list([-1, 5, 2])", output: "6" }
+  ],
+  "lists-max": [
+    { input: "max_value([1, 7, 3])", output: "7" },
+    { input: "max_value([-2, -5, -1])", output: "-1" }
+  ],
+  "loops-countdown": [
+    { input: "countdown(3)", output: "[3, 2, 1, 0]" },
+    { input: "countdown(0)", output: "[0]" }
+  ],
+  "loops-factorial": [
+    { input: "factorial(4)", output: "24" },
+    { input: "factorial(1)", output: "1" }
+  ],
+  "conditionals-grade": [
+    { input: "grade(95)", output: "\"A\"" },
+    { input: "grade(72)", output: "\"C\"" }
+  ],
+  "conditionals-sign": [
+    { input: "sign(5)", output: "1" },
+    { input: "sign(-3)", output: "-1" }
+  ],
+  "functions-even": [
+    { input: "is_even(4)", output: "True" },
+    { input: "is_even(7)", output: "False" }
+  ],
+  "functions-clamp": [
+    { input: "clamp(5, 1, 10)", output: "5" },
+    { input: "clamp(0, 1, 10)", output: "1" }
+  ],
+  "arrays-hashing-contains-duplicate": [
+    { input: "contains_duplicate([1, 2, 3, 1])", output: "True" },
+    { input: "contains_duplicate([1, 2, 3, 4])", output: "False" }
+  ],
+  "two-pointers-palindrome": [
+    { input: 'is_palindrome("racecar")', output: "True" },
+    { input: 'is_palindrome("hello")', output: "False" }
+  ],
+  "sliding-window-max-sum": [
+    { input: "max_subarray_sum([1, 2, 3, 4], 2)", output: "7" },
+    { input: "max_subarray_sum([5, 1, 3, 2], 3)", output: "9" }
+  ],
+  "stack-valid-parentheses": [
+    { input: 'is_valid_parentheses("([])")', output: "True" },
+    { input: 'is_valid_parentheses("([)]")', output: "False" }
+  ],
+  "binary-search-basic": [
+    { input: "binary_search([1, 3, 5, 7], 5)", output: "2" },
+    { input: "binary_search([1, 3, 5, 7], 4)", output: "-1" }
+  ],
+  "linked-list-reverse": [
+    { input: "reverse_list([1, 2, 3])", output: "[3, 2, 1]" },
+    { input: "reverse_list([9])", output: "[9]" }
+  ],
+  "trees-max-depth": [
+    { input: "max_depth([1, 2, 3, null, null, 4])", output: "3" },
+    { input: "max_depth([1])", output: "1" }
+  ],
+  "tries-basic": [
+    { input: 'insert("cat"), search("cat")', output: "True" },
+    { input: 'search("cap")', output: "False" }
+  ],
+  "heap-k-smallest": [
+    { input: "k_smallest([3, 1, 5, 2, 4], 3)", output: "[1, 2, 3]" },
+    { input: "k_smallest([9, 8, 7], 1)", output: "[7]" }
+  ],
+  "backtracking-subsets": [
+    { input: "subsets([1, 2])", output: "[[], [1], [2], [1, 2]] (order may vary)" },
+    { input: "subsets([0])", output: "[[], [0]]" }
+  ],
+  "graphs-count-components": [
+    { input: "count_components(5, [[0,1],[1,2],[3,4]])", output: "2" },
+    { input: "count_components(3, [])", output: "3" }
+  ],
+  "advanced-graphs-shortest-path": [
+    {
+      input: "shortest_path(4, [[0,1,4],[0,2,2],[1,2,5],[1,3,10],[2,3,3]], 0, 3)",
+      output: "5"
+    },
+    {
+      input: "shortest_path(4, [[0,1,4],[0,2,2],[1,2,5],[1,3,10],[2,3,3]], 3, 0)",
+      output: "-1"
+    }
+  ],
+  "dp-1d-climb-stairs": [
+    { input: "climb_stairs(2)", output: "2" },
+    { input: "climb_stairs(4)", output: "5" }
+  ],
+  "dp-2d-unique-paths": [
+    { input: "unique_paths(3, 2)", output: "3" },
+    { input: "unique_paths(3, 3)", output: "6" }
+  ],
+  "greedy-max-profit": [
+    { input: "max_profit([7, 1, 5, 3, 6, 4])", output: "5" },
+    { input: "max_profit([7, 6, 4, 3, 1])", output: "0" }
+  ],
+  "intervals-merge": [
+    {
+      input: "merge_intervals([[1,3],[2,6],[8,10],[15,18]])",
+      output: "[[1, 6], [8, 10], [15, 18]]"
+    },
+    { input: "merge_intervals([[1,4],[4,5]])", output: "[[1, 5]]" }
+  ],
+  "bit-manipulation-power-of-two": [
+    { input: "is_power_of_two(8)", output: "True" },
+    { input: "is_power_of_two(12)", output: "False" }
+  ],
+  "math-geometry-gcd": [
+    { input: "gcd(18, 12)", output: "6" },
+    { input: "gcd(10, 5)", output: "5" }
+  ]
+};
+
+const getExamples = (id: string): ExampleCase[] => {
+  const examples = TEMPLATE_EXAMPLES[id];
+  if (!examples || examples.length < 2) {
+    throw new Error(`Missing examples for template ${id}`);
+  }
+  return examples;
+};
+
 export const templates: Template[] = [
   {
     id: "arith-add",
@@ -100,13 +251,12 @@ export const templates: Template[] = [
     generate: () => {
       const a = randomInt(5, 99);
       const b = randomInt(5, 99);
-      return buildQuestion({
+      return buildQuestionFromTemplate("arith-add", {
         category: "arith",
         difficulty: 1,
         prompt: "Implement add(a, b) so it returns the sum of the two numbers.",
         starterCode: "def add(a, b):\n    # TODO: return the sum\n    pass\n",
         tests: `assert add(${a}, ${b}) == ${a + b}\nassert add(${b}, ${a}) == ${a + b}`,
-        solution: getSolution("arith-add"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -118,13 +268,12 @@ export const templates: Template[] = [
     generate: () => {
       const a = randomInt(2, 20);
       const b = randomInt(2, 15);
-      return buildQuestion({
+      return buildQuestionFromTemplate("arith-mul", {
         category: "arith",
         difficulty: 1,
         prompt: "Implement mul(a, b) to return the product of the two numbers.",
         starterCode: "def mul(a, b):\n    # TODO: return the product\n    pass\n",
         tests: `assert mul(${a}, ${b}) == ${a * b}\nassert mul(${b}, ${a}) == ${a * b}`,
-        solution: getSolution("arith-mul"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -135,13 +284,12 @@ export const templates: Template[] = [
     difficulty: 1,
     generate: () => {
       const word = randomString(5);
-      return buildQuestion({
+      return buildQuestionFromTemplate("strings-reverse", {
         category: "strings",
         difficulty: 1,
         prompt: "Implement reverse(s) to return the reversed string.",
         starterCode: "def reverse(s):\n    # TODO: return the reversed string\n    pass\n",
         tests: `assert reverse(\"${word}\") == \"${word.split("").reverse().join("")}\"\nassert reverse(\"ab\") == \"ba\"`,
-        solution: getSolution("strings-reverse"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -153,13 +301,12 @@ export const templates: Template[] = [
     generate: () => {
       const word = randomChoice(["education", "sequoia", "perception", "audacious"]);
       const count = word.split("").filter((char) => "aeiou".includes(char)).length;
-      return buildQuestion({
+      return buildQuestionFromTemplate("strings-count-vowels", {
         category: "strings",
         difficulty: 2,
         prompt: "Implement count_vowels(s) to return the number of vowels in the string.",
         starterCode: "def count_vowels(s):\n    # TODO: count a, e, i, o, u\n    pass\n",
         tests: `assert count_vowels(\"${word}\") == ${count}\nassert count_vowels(\"sky\") == 0`,
-        solution: getSolution("strings-count-vowels"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -171,13 +318,12 @@ export const templates: Template[] = [
     generate: () => {
       const nums = [randomInt(1, 9), randomInt(1, 9), randomInt(1, 9), randomInt(1, 9)];
       const total = nums.reduce((acc, val) => acc + val, 0);
-      return buildQuestion({
+      return buildQuestionFromTemplate("lists-sum", {
         category: "lists",
         difficulty: 2,
         prompt: "Implement sum_list(nums) to return the sum of all numbers in the list.",
         starterCode: "def sum_list(nums):\n    # TODO: return the sum of nums\n    pass\n",
         tests: `assert sum_list(${JSON.stringify(nums)}) == ${total}\nassert sum_list([1, 2, 3]) == 6`,
-        solution: getSolution("lists-sum"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -189,13 +335,12 @@ export const templates: Template[] = [
     generate: () => {
       const nums = [randomInt(1, 20), randomInt(1, 20), randomInt(1, 20), randomInt(1, 20)];
       const max = Math.max(...nums);
-      return buildQuestion({
+      return buildQuestionFromTemplate("lists-max", {
         category: "lists",
         difficulty: 2,
         prompt: "Implement max_value(nums) to return the maximum value in the list.",
         starterCode: "def max_value(nums):\n    # TODO: return the maximum value\n    pass\n",
         tests: `assert max_value(${JSON.stringify(nums)}) == ${max}\nassert max_value([-2, -5, -1]) == -1`,
-        solution: getSolution("lists-max"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -207,14 +352,13 @@ export const templates: Template[] = [
     generate: () => {
       const n = randomInt(3, 7);
       const expected = Array.from({ length: n + 1 }, (_, idx) => n - idx);
-      return buildQuestion({
+      return buildQuestionFromTemplate("loops-countdown", {
         category: "loops",
         difficulty: 2,
         prompt:
           "Implement countdown(n) to return a list counting down from n to 0 (inclusive).",
         starterCode: "def countdown(n):\n    # TODO: return list [n, n-1, ..., 0]\n    pass\n",
         tests: `assert countdown(${n}) == ${JSON.stringify(expected)}\nassert countdown(0) == [0]`,
-        solution: getSolution("loops-countdown"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -229,13 +373,12 @@ export const templates: Template[] = [
         (acc, val) => acc * val,
         1
       );
-      return buildQuestion({
+      return buildQuestionFromTemplate("loops-factorial", {
         category: "loops",
         difficulty: 3,
         prompt: "Implement factorial(n) to return n! using a loop.",
         starterCode: "def factorial(n):\n    # TODO: compute n!\n    pass\n",
         tests: `assert factorial(${n}) == ${expected}\nassert factorial(1) == 1`,
-        solution: getSolution("loops-factorial"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -256,14 +399,13 @@ export const templates: Template[] = [
               : score >= 60
                 ? "D"
                 : "F";
-      return buildQuestion({
+      return buildQuestionFromTemplate("conditionals-grade", {
         category: "conditionals",
         difficulty: 2,
         prompt:
           "Implement grade(score) that returns 'A' (90+), 'B' (80+), 'C' (70+), 'D' (60+), or 'F'.",
         starterCode: "def grade(score):\n    # TODO: return letter grade\n    pass\n",
         tests: `assert grade(${score}) == "${grade}"\nassert grade(59) == "F"\nassert grade(90) == "A"`,
-        solution: getSolution("conditionals-grade"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -275,13 +417,12 @@ export const templates: Template[] = [
     generate: () => {
       const value = randomChoice([-10, -1, 0, 1, 9]);
       const sign = value === 0 ? 0 : value > 0 ? 1 : -1;
-      return buildQuestion({
+      return buildQuestionFromTemplate("conditionals-sign", {
         category: "conditionals",
         difficulty: 1,
         prompt: "Implement sign(n) to return 1 if n>0, -1 if n<0, and 0 if n==0.",
         starterCode: "def sign(n):\n    # TODO: return 1, -1, or 0\n    pass\n",
         tests: `assert sign(${value}) == ${sign}\nassert sign(0) == 0`,
-        solution: getSolution("conditionals-sign"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -293,13 +434,12 @@ export const templates: Template[] = [
     generate: () => {
       const value = randomInt(2, 20);
       const isEven = value % 2 === 0;
-      return buildQuestion({
+      return buildQuestionFromTemplate("functions-even", {
         category: "functions",
         difficulty: 1,
         prompt: "Implement is_even(n) to return True if n is even, otherwise False.",
         starterCode: "def is_even(n):\n    # TODO: return True if n is even\n    pass\n",
         tests: `assert is_even(${value}) is ${isEven ? "True" : "False"}\nassert is_even(3) is False`,
-        solution: getSolution("functions-even"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -313,14 +453,13 @@ export const templates: Template[] = [
       const high = randomInt(low + 5, low + 15);
       const value = randomInt(low - 5, high + 5);
       const expected = Math.min(Math.max(value, low), high);
-      return buildQuestion({
+      return buildQuestionFromTemplate("functions-clamp", {
         category: "functions",
         difficulty: 3,
         prompt:
           "Implement clamp(x, low, high) to return low if x < low, high if x > high, otherwise x.",
         starterCode: "def clamp(x, low, high):\n    # TODO: clamp x to the [low, high] range\n    pass\n",
         tests: `assert clamp(${value}, ${low}, ${high}) == ${expected}\nassert clamp(${low}, ${low}, ${high}) == ${low}`,
-        solution: getSolution("functions-clamp"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -332,14 +471,13 @@ export const templates: Template[] = [
     generate: () => {
       const base = randomInt(1, 9);
       const nums = [base, randomInt(1, 9), randomInt(1, 9), base];
-      return buildQuestion({
+      return buildQuestionFromTemplate("arrays-hashing-contains-duplicate", {
         category: "arrays_hashing",
         difficulty: 1,
         prompt: "Implement contains_duplicate(nums) to return True if any value appears twice.",
         starterCode:
           "def contains_duplicate(nums):\n    # TODO: return True if a duplicate exists\n    pass\n",
         tests: `assert contains_duplicate(${JSON.stringify(nums)}) is True\nassert contains_duplicate([1, 2, 3, 4]) is False`,
-        solution: getSolution("arrays-hashing-contains-duplicate"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -351,14 +489,13 @@ export const templates: Template[] = [
     generate: () => {
       const seed = randomString(3);
       const palindrome = `${seed}${seed.split("").reverse().join("")}`;
-      return buildQuestion({
+      return buildQuestionFromTemplate("two-pointers-palindrome", {
         category: "two_pointers",
         difficulty: 1,
         prompt: "Implement is_palindrome(s) to return True if s reads the same forwards/backwards.",
         starterCode:
           "def is_palindrome(s):\n    # TODO: return True if s is a palindrome\n    pass\n",
         tests: `assert is_palindrome(\"${palindrome}\") is True\nassert is_palindrome(\"${seed}x\") is False`,
-        solution: getSolution("two-pointers-palindrome"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -374,14 +511,13 @@ export const templates: Template[] = [
         nums.slice(idx, idx + k).reduce((acc, val) => acc + val, 0)
       );
       const expected = Math.max(...sums);
-      return buildQuestion({
+      return buildQuestionFromTemplate("sliding-window-max-sum", {
         category: "sliding_window",
         difficulty: 2,
         prompt: "Implement max_subarray_sum(nums, k) to return the max sum of any length-k subarray.",
         starterCode:
           "def max_subarray_sum(nums, k):\n    # TODO: return max sum of any window of size k\n    pass\n",
         tests: `assert max_subarray_sum(${JSON.stringify(nums)}, ${k}) == ${expected}\nassert max_subarray_sum([1, 2, 3, 4], 2) == 7`,
-        solution: getSolution("sliding-window-max-sum"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -391,14 +527,13 @@ export const templates: Template[] = [
     category: "stack",
     difficulty: 2,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("stack-valid-parentheses", {
         category: "stack",
         difficulty: 2,
         prompt: "Implement is_valid_parentheses(s) to validate (), [], and {} pairs.",
         starterCode:
           "def is_valid_parentheses(s):\n    # TODO: return True if parentheses are balanced\n    pass\n",
         tests: `assert is_valid_parentheses(\"([])\") is True\nassert is_valid_parentheses(\"([)]\") is False`,
-        solution: getSolution("stack-valid-parentheses"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -410,14 +545,13 @@ export const templates: Template[] = [
     generate: () => {
       const nums = Array.from({ length: 7 }, (_, idx) => idx * 2 + 1);
       const target = randomChoice(nums);
-      return buildQuestion({
+      return buildQuestionFromTemplate("binary-search-basic", {
         category: "binary_search",
         difficulty: 2,
         prompt: "Implement binary_search(nums, target) to return the index of target or -1.",
         starterCode:
           "def binary_search(nums, target):\n    # TODO: return index of target or -1\n    pass\n",
         tests: `assert binary_search(${JSON.stringify(nums)}, ${target}) == ${nums.indexOf(target)}\nassert binary_search(${JSON.stringify(nums)}, 100) == -1`,
-        solution: getSolution("binary-search-basic"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -427,7 +561,7 @@ export const templates: Template[] = [
     category: "linked_list",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("linked-list-reverse", {
         category: "linked_list",
         difficulty: 3,
         prompt: "Implement reverse_list(head) to reverse a linked list.",
@@ -435,7 +569,6 @@ export const templates: Template[] = [
           "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\n\ndef reverse_list(head):\n    # TODO: reverse the linked list\n    pass\n",
         tests:
           "def build_list(values):\n    dummy = ListNode(0)\n    cur = dummy\n    for value in values:\n        cur.next = ListNode(value)\n        cur = cur.next\n    return dummy.next\n\n\ndef to_list(head):\n    values = []\n    while head:\n        values.append(head.val)\n        head = head.next\n    return values\n\nhead = build_list([1, 2, 3])\nassert to_list(reverse_list(head)) == [3, 2, 1]\nassert to_list(reverse_list(build_list([9]))) == [9]",
-        solution: getSolution("linked-list-reverse"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -445,7 +578,7 @@ export const templates: Template[] = [
     category: "trees",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("trees-max-depth", {
         category: "trees",
         difficulty: 3,
         prompt: "Implement max_depth(root) to return the maximum depth of a binary tree.",
@@ -453,7 +586,6 @@ export const templates: Template[] = [
           "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef max_depth(root):\n    # TODO: return the max depth\n    pass\n",
         tests:
           "root = TreeNode(1, TreeNode(2), TreeNode(3, TreeNode(4), None))\nassert max_depth(root) == 3\nassert max_depth(TreeNode(1)) == 1",
-        solution: getSolution("trees-max-depth"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -463,7 +595,7 @@ export const templates: Template[] = [
     category: "tries",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("tries-basic", {
         category: "tries",
         difficulty: 3,
         prompt: "Implement Trie.insert and Trie.search for exact word matches.",
@@ -471,7 +603,6 @@ export const templates: Template[] = [
           "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        # TODO: insert word into trie\n        pass\n\n    def search(self, word):\n        # TODO: return True if word exists\n        pass\n",
         tests:
           "trie = Trie()\ntrie.insert(\"cat\")\ntrie.insert(\"car\")\nassert trie.search(\"cat\") is True\nassert trie.search(\"cap\") is False",
-        solution: getSolution("tries-basic"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -483,14 +614,13 @@ export const templates: Template[] = [
     generate: () => {
       const nums = [3, 1, 5, 2, 4];
       const k = 3;
-      return buildQuestion({
+      return buildQuestionFromTemplate("heap-k-smallest", {
         category: "heap_priority_queue",
         difficulty: 3,
         prompt: "Implement k_smallest(nums, k) to return the k smallest numbers sorted.",
         starterCode:
           "def k_smallest(nums, k):\n    # TODO: return the k smallest values sorted ascending\n    pass\n",
         tests: `assert k_smallest(${JSON.stringify(nums)}, ${k}) == [1, 2, 3]\nassert k_smallest([9, 8, 7], 1) == [7]`,
-        solution: getSolution("heap-k-smallest"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -500,7 +630,7 @@ export const templates: Template[] = [
     category: "backtracking",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("backtracking-subsets", {
         category: "backtracking",
         difficulty: 3,
         prompt: "Implement subsets(nums) to return all subsets (order does not matter).",
@@ -508,7 +638,6 @@ export const templates: Template[] = [
           "def subsets(nums):\n    # TODO: return all subsets\n    pass\n",
         tests:
           "def normalize(values):\n    return sorted([sorted(item) for item in values])\n\nassert normalize(subsets([1, 2])) == normalize([[], [1], [2], [1, 2]])",
-        solution: getSolution("backtracking-subsets"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -518,7 +647,7 @@ export const templates: Template[] = [
     category: "graphs",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("graphs-count-components", {
         category: "graphs",
         difficulty: 3,
         prompt: "Implement count_components(n, edges) to return the number of connected components.",
@@ -526,7 +655,6 @@ export const templates: Template[] = [
           "def count_components(n, edges):\n    # TODO: return number of connected components\n    pass\n",
         tests:
           "assert count_components(5, [[0,1],[1,2],[3,4]]) == 2\nassert count_components(3, []) == 3",
-        solution: getSolution("graphs-count-components"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -536,7 +664,7 @@ export const templates: Template[] = [
     category: "advanced_graphs",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("advanced-graphs-shortest-path", {
         category: "advanced_graphs",
         difficulty: 3,
         prompt:
@@ -545,7 +673,6 @@ export const templates: Template[] = [
           "def shortest_path(n, edges, start, end):\n    # edges: [from, to, weight]\n    # TODO: return shortest distance or -1\n    pass\n",
         tests:
           "edges = [[0,1,4],[0,2,2],[1,2,5],[1,3,10],[2,3,3]]\nassert shortest_path(4, edges, 0, 3) == 5\nassert shortest_path(4, edges, 3, 0) == -1",
-        solution: getSolution("advanced-graphs-shortest-path"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -567,14 +694,13 @@ export const templates: Template[] = [
         return b;
       };
       const expected = ways(n);
-      return buildQuestion({
+      return buildQuestionFromTemplate("dp-1d-climb-stairs", {
         category: "dp_1d",
         difficulty: 2,
         prompt: "Implement climb_stairs(n) to return number of ways to reach step n (1 or 2 steps).",
         starterCode:
           "def climb_stairs(n):\n    # TODO: return number of ways\n    pass\n",
         tests: `assert climb_stairs(${n}) == ${expected}\nassert climb_stairs(2) == 2`,
-        solution: getSolution("dp-1d-climb-stairs"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -584,14 +710,13 @@ export const templates: Template[] = [
     category: "dp_2d",
     difficulty: 3,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("dp-2d-unique-paths", {
         category: "dp_2d",
         difficulty: 3,
         prompt: "Implement unique_paths(m, n) to count paths in an m x n grid (only right/down).",
         starterCode:
           "def unique_paths(m, n):\n    # TODO: return number of unique paths\n    pass\n",
         tests: `assert unique_paths(3, 2) == 3\nassert unique_paths(3, 3) == 6`,
-        solution: getSolution("dp-2d-unique-paths"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -601,7 +726,7 @@ export const templates: Template[] = [
     category: "greedy",
     difficulty: 2,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("greedy-max-profit", {
         category: "greedy",
         difficulty: 2,
         prompt: "Implement max_profit(prices) to return the max profit from one buy/sell.",
@@ -609,7 +734,6 @@ export const templates: Template[] = [
           "def max_profit(prices):\n    # TODO: return maximum profit\n    pass\n",
         tests:
           "assert max_profit([7,1,5,3,6,4]) == 5\nassert max_profit([7,6,4,3,1]) == 0",
-        solution: getSolution("greedy-max-profit"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -619,7 +743,7 @@ export const templates: Template[] = [
     category: "intervals",
     difficulty: 2,
     generate: () => {
-      return buildQuestion({
+      return buildQuestionFromTemplate("intervals-merge", {
         category: "intervals",
         difficulty: 2,
         prompt: "Implement merge_intervals(intervals) to merge overlapping intervals.",
@@ -627,7 +751,6 @@ export const templates: Template[] = [
           "def merge_intervals(intervals):\n    # TODO: return merged intervals\n    pass\n",
         tests:
           "def normalize(items):\n    return sorted(items, key=lambda x: x[0])\n\nresult = merge_intervals([[1,3],[2,6],[8,10],[15,18]])\nassert normalize(result) == [[1,6],[8,10],[15,18]]",
-        solution: getSolution("intervals-merge"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -639,14 +762,13 @@ export const templates: Template[] = [
     generate: () => {
       const value = randomChoice([1, 2, 3, 4, 5, 8, 16]);
       const expected = (value & (value - 1)) === 0;
-      return buildQuestion({
+      return buildQuestionFromTemplate("bit-manipulation-power-of-two", {
         category: "bit_manipulation",
         difficulty: 1,
         prompt: "Implement is_power_of_two(n) to return True if n is a power of two.",
         starterCode:
           "def is_power_of_two(n):\n    # TODO: return True if n is power of two\n    pass\n",
         tests: `assert is_power_of_two(${value}) is ${expected ? "True" : "False"}\nassert is_power_of_two(0) is False`,
-        solution: getSolution("bit-manipulation-power-of-two"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
@@ -660,14 +782,13 @@ export const templates: Template[] = [
       const b = randomInt(6, 18);
       const gcd = (x: number, y: number): number => (y === 0 ? x : gcd(y, x % y));
       const expected = gcd(a, b);
-      return buildQuestion({
+      return buildQuestionFromTemplate("math-geometry-gcd", {
         category: "math_geometry",
         difficulty: 1,
         prompt: "Implement gcd(a, b) to return the greatest common divisor.",
         starterCode:
           "def gcd(a, b):\n    # TODO: return greatest common divisor\n    pass\n",
         tests: `assert gcd(${a}, ${b}) == ${expected}\nassert gcd(10, 5) == 5`,
-        solution: getSolution("math-geometry-gcd"),
         timeLimitMs: DEFAULT_TIME_LIMIT_MS
       });
     }
