@@ -18,10 +18,12 @@ export default function LoginScreen() {
     }
     setIsSubmitting(true);
     try {
+      const redirectTo =
+        import.meta.env.VITE_SITE_URL?.trim() || window.location.origin;
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: redirectTo
         }
       });
       if (signInError) {
